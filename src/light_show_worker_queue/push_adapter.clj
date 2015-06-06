@@ -34,3 +34,15 @@
       serialize
       publish-party))
 
+;;; registration stuff
+
+(def apns-sandbox-application "arn:aws:sns:us-east-1:405483072970:app/APNS_SANDBOX/Remote-Light-Show")
+
+(defn- token->endpoint [token]
+  (sns/create-platform-endpoint :platform-application-arn apns-sandbox-application
+                                :token token))
+
+(defn register-endpoint [token]
+  (sns/subscribe :topic-arn party-topic-arn
+                 :protocol "application"
+                 :endpoint (token->endpoint token)))
