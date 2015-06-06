@@ -3,7 +3,9 @@
            [clojure.data.json :as json]))
 
 ;; andrew's phone arn during dev
-(def party-topic-arn "arn:aws:sns:us-east-1:405483072970:endpoint/APNS_SANDBOX/Remote-Light-Show/3f91e295-c42a-305f-a8fa-71bad0e44591")
+;; (def party-topic-arn "arn:aws:sns:us-east-1:405483072970:endpoint/APNS_SANDBOX/Remote-Light-Show/3f91e295-c42a-305f-a8fa-71bad0e44591")
+
+(def party-topic-arn "arn:aws:sns:us-east-1:405483072970:remote-light-show")
 
 (def default-party-message-body {:default "error"})
 
