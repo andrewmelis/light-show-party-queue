@@ -21,7 +21,7 @@
       send-mobile-message))
 
 (defn- listen-forever [queue_url]
-  (doall (pmap (sqs/deleting-consumer client handle-message)
+  (doall (map (sqs/deleting-consumer client handle-message)
                (sqs/polling-receive client queue_url :max-wait Long/MAX_VALUE))))
 
 (defn start [queue_url]
