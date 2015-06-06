@@ -1,9 +1,10 @@
 (ns light-show-worker-queue.core
+  (:require [light-show-worker-queue.queue-worker :as queue])
   (:gen-class))
 
 (def light-show-queue "https://sqs.us-east-1.amazonaws.com/405483072970/remote-light-show")
 
 (defn -main
-  "I don't do a whole lot ... yet."
+  "start a queue that listens to the provided queue url indefinitely"
   [& args]
-  (println "Hello, World!"))
+  (queue/start-listening light-show-queue))

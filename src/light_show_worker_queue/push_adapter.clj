@@ -5,16 +5,18 @@
 ;; andrew's phone arn during dev
 (def party-topic-arn "arn:aws:sns:us-east-1:405483072970:endpoint/APNS_SANDBOX/Remote-Light-Show/3f91e295-c42a-305f-a8fa-71bad0e44591")
 
-(def default-party-message-body {:default "wassup"})
+(def default-party-message-body {:default "error"})
 
 (def silent-notification-property {:aps {:content-available 1}})
+
+(def serialize json/write-str)
 
 (defn- apns-dictionary [party-map]
   (merge silent-notification-property
          party-map))
 
 (defn- apns-message-body [party-map]
-  {:APNS_SANDBOX (json/write-str (apns-dictionary party-map))})
+  {:APNS_SANDBOX (serialize (apns-dictionary party-map))})
 
 (defn- build-party-message-body [party-map]
   (merge default-party-message-body
@@ -27,6 +29,6 @@
 
 (defn send-push-message [message-content]
   (-> (build-party-message-body message-content)
-      json/write-str
+      serialize
       publish-party))
 
