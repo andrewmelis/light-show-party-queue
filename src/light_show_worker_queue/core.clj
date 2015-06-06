@@ -7,4 +7,4 @@
 (defn -main
   "start a queue that listens to the provided queue url indefinitely"
   [& args]
-  (queue/start-listening light-show-queue))
+  (queue/start light-show-queue))

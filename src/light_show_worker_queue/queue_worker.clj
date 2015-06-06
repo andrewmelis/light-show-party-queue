@@ -6,6 +6,10 @@
 
 (def client (sqs/create-client))
 
+(defn- reduce-excess-logs []
+  (.setLevel (java.util.logging.Logger/getLogger "com.amazonaws")
+             java.util.logging.Level/WARNING))
+
 (def parse-message (comp json/read-str :body))
 
 (defn- send-mobile-message [message-content]
@@ -16,8 +20,11 @@
       party-builder/build-party-for-user
       send-mobile-message))
 
-(defn start-listening [queue_url]
+(defn- listen-forever [queue_url]
   (doall (pmap (sqs/deleting-consumer client handle-message)
-              (sqs/polling-receive client queue_url :max-wait Long/MAX_VALUE))))
+               (sqs/polling-receive client queue_url :max-wait Long/MAX_VALUE))))
 
-
+(defn start [queue_url]
+  (do
+    (reduce-excess-logs)
+    (listen-forever queue_url)))
