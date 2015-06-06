@@ -5,5 +5,7 @@
                  [amazonica "0.3.22"]
                  [com.cemerick/bandalore "0.0.6"]]
   :main ^:skip-aot light-show-worker-queue.core
+  :min-lein-version "2.0.0"
+  :uberjar-name "light-show-worker-queue.jar"
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}})
