@@ -15,10 +15,19 @@
 (defn- send-mobile-message [message-content]
   (push/send-push-message message-content))
 
+(defn- add-partygoer-to-list [token]
+  (push/register-endpoint token))
+
+(defn- redirect-job [parsed-message]
+  (cond (when-let [name (get parsed-message "name")]
+          (-> (party-builder/build-party-for-user name)
+              send-mobile-message))
+        (when-let [token (get parsed-message "token")]
+          (add-partygoer-to-list token))
+        :else (println "unknown message")))
+
 (defn- handle-message [raw-message]
-  (-> (parse-message raw-message)
-      party-builder/build-party-for-user
-      send-mobile-message))
+  (redirect-job (parse-message raw-message)))
 
 (defn- listen-forever [queue_url]
   (doall (map (sqs/deleting-consumer client handle-message)
