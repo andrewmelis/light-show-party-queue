@@ -24,7 +24,7 @@
               send-mobile-message))
         (when-let [token (get parsed-message "token")]
           (add-partygoer-to-list token))
-        :else (println "unknown message")))
+        :else (println (str "unknown message" parsed-message))))
 
 (defn- handle-message [raw-message]
   (redirect-job (parse-message raw-message)))
