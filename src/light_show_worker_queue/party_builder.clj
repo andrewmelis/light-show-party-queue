@@ -8,5 +8,5 @@
 
 (defn build-party-for-user [user-info]
   {:party (merge (light-show-info)
-                 user-info)})
+                 {:name user-info})})
   
