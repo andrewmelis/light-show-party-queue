@@ -25,9 +25,12 @@
          (apns-message-body party-map)))
 
 (defn- publish-party [serialized-message-body]
-  (sns/publish :target-arn party-topic-arn
-               :message serialized-message-body
-               :message-structure "json"))
+  (try
+    (sns/publish :target-arn party-topic-arn
+                 :message serialized-message-body
+                 :message-structure "json")
+    (catch Exception e
+      (println (str "EXCEPTION " e)))))
 
 (defn send-push-message [message-content]
   (-> (build-party-message-body message-content)
@@ -39,10 +42,16 @@
 (def apns-sandbox-application "arn:aws:sns:us-east-1:405483072970:app/APNS_SANDBOX/Remote-Light-Show")
 
 (defn- token->endpoint [token]
-  (sns/create-platform-endpoint :platform-application-arn apns-sandbox-application
-                                :token token))
+  (try
+    (sns/create-platform-endpoint :platform-application-arn apns-sandbox-application
+                                  :token token)
+    (catch Exception e
+      (println (str "EXCEPTION " e)))))
 
 (defn register-endpoint [token]
-  (sns/subscribe :topic-arn party-topic-arn
-                 :protocol "application"
-                 :endpoint (token->endpoint token)))
+  (try
+    (sns/subscribe :topic-arn party-topic-arn
+                   :protocol "application"
+                   :endpoint (token->endpoint token))
+    (catch Exception e
+      (println (str "EXCEPTION " e)))))
