@@ -1,41 +1,38 @@
 (ns light-show-worker-queue.push-adapter
-  (require [amazonica.aws.sns :as sns]
+  (require [amazonica.aws.sns :as push-service]
            [clojure.data.json :as json]))
 
-;; andrew's phone arn during dev
-;; (def party-topic-arn "arn:aws:sns:us-east-1:405483072970:endpoint/APNS_SANDBOX/Remote-Light-Show/3f91e295-c42a-305f-a8fa-71bad0e44591")
-
-(def party-topic-arn "arn:aws:sns:us-east-1:405483072970:remote-light-show")
-
-(def default-party-message-body {:default "error"})
-
+(def default-message-body {:default "error"})
 (def silent-notification-property {:aps {:content-available 1}})
 
 (def serialize json/write-str)
 
-(defn- apns-dictionary [party-map]
-  (merge silent-notification-property
-         party-map))
+(defn- build-apns-body [message-content]
+  "build a (silent) notification for Apple Push Notification Service"
+  (serialize (merge silent-notification-property
+                    message-content)))
 
-(defn- apns-message-body [party-map]
-  {:APNS_SANDBOX (serialize (apns-dictionary party-map))})
+(defn- build-notification-message-body [message-content]
+  "builds a multi-platform notification. expects a map"
+  (let [apns-body (build-apns-body message-content)]
+    {:default      "error"
+     :APNS         apns-body
+     :APNS_SANDBOX apns-body}))
 
-(defn- build-party-message-body [party-map]
-  (merge default-party-message-body
-         (apns-message-body party-map)))
-
-(defn- publish-party [serialized-message-body]
+(defn- publish-notification [serialized-message-body topic-endpoint]
+  "delivers a properly structured notification to subscribers of app topic"
   (try
-    (sns/publish :target-arn party-topic-arn
-                 :message serialized-message-body
-                 :message-structure "json")
+    (push-service/publish :target-arn topic-endpoint
+                          :message serialized-message-body
+                          :message-structure "json")
     (catch Exception e
       (println (str "EXCEPTION " e)))))
 
-(defn send-push-message [message-content]
-  (-> (build-party-message-body message-content)
+(defn send-push-message [message-content topic-endpoint]
+  "formats input content for delivery and publishes a notification"
+  (-> (build-notification-message-body message-content)
       serialize
-      publish-party))
+      (publish-notification topic-endpoint)))
 
 ;;; registration stuff
 
@@ -43,14 +40,14 @@
 
 (defn- token->endpoint [token]
   (try
-    (sns/create-platform-endpoint :platform-application-arn apns-sandbox-application
+    (push-service/create-platform-endpoint :platform-application-arn apns-sandbox-application
                                   :token token)
     (catch Exception e
       (println (str "EXCEPTION " e)))))
 
-(defn register-endpoint [token]
+(defn register-endpoint-to-topic [token topic-arn]
   (try
-    (sns/subscribe :topic-arn party-topic-arn
+    (push-service/subscribe :topic-arn topic-arn
                    :protocol "application"
                    :endpoint (token->endpoint token))
     (catch Exception e
