@@ -1,5 +1,6 @@
 (ns light-show-worker-queue.queue-worker
-  (require [light-show-worker-queue.push-adapter :as push]
+  (require [light-show-worker-queue.app-registration :as registration]
+           [light-show-worker-queue.push-adapter :as push]
            [light-show-worker-queue.party-builder :as party-builder]
            [cemerick.bandalore :as sqs]
            [clojure.data.json :as json]))
@@ -20,7 +21,7 @@
   (send-mobile-message (party-builder/build-party-for-user name)))
 
 (defn- add-partygoer-to-list [token]
-  (push/register-endpoint-to-topic token topic-arn))
+  (registration/register-endpoint-to-topic token topic-arn))
 
 (defn- redirect-job [parsed-message]
   (let [{:strs [name token]} parsed-message]
