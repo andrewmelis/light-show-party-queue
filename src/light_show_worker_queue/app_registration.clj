@@ -1,11 +1,16 @@
 (ns light-show-worker-queue.app-registration
   (require [amazonica.aws.sns :as push-service]))
 
-(def apns-sandbox-application "arn:aws:sns:us-east-1:405483072970:app/APNS_SANDBOX/Remote-Light-Show")
+
+;; sandbox
+;; (def apns-sandbox-application "arn:aws:sns:us-east-1:405483072970:app/APNS_SANDBOX/Remote-Light-Show")
+
+;; prod
+(def apns-application "arn:aws:sns:us-east-1:405483072970:app/APNS/RemoteLightShowProd")
 
 (defn- token->endpoint [token]
   (try
-    (push-service/create-platform-endpoint :platform-application-arn apns-sandbox-application
+    (push-service/create-platform-endpoint :platform-application-arn apns-application
                                            :token token)
     (catch Exception e
       (println (str "EXCEPTION " e)))))
