@@ -9,11 +9,12 @@
 (def apns-application "arn:aws:sns:us-east-1:405483072970:app/APNS/RemoteLightShowProd")
 
 (defn- token->endpoint [token]
-  (try
-    (push-service/create-platform-endpoint :platform-application-arn apns-application
-                                           :token token)
-    (catch Exception e
-      (println (str "EXCEPTION " e)))))
+  (:endpoint-arn
+   (try
+     (push-service/create-platform-endpoint :platform-application-arn apns-application
+                                            :token token)
+     (catch Exception e
+       (println (str "EXCEPTION " e))))))
 
 (defn register-endpoint-to-topic [token topic-arn]
   (try
